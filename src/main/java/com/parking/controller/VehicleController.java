@@ -1,0 +1,128 @@
+package com.parking.controller;
+
+import com.parking.dto.VehicleDTO;
+import com.parking.entity.User;
+import com.parking.entity.Vehicle;
+import com.parking.enums.Role;
+import com.parking.repository.UserRepository;
+import com.parking.service.VehicleService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
+@SecurityRequirement(name = "BearerAuth")
+@Tag(
+	    name = "Vehicle Management APIs",
+	    description = "APIs for managing vehicle registration and vehicle details"
+	)
+@RestController
+@RequestMapping("/api/vehicles")
+@RequiredArgsConstructor
+public class VehicleController {
+
+    private final VehicleService vehicleService;
+    private final UserRepository userRepository;
+
+    @PostMapping
+    public VehicleDTO addVehicle(
+            @Valid @RequestBody VehicleDTO dto) {
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Vehicle vehicle =
+                Vehicle.builder()
+                        .vehicleNumber(dto.getVehicleNumber())
+                        .vehicleType(dto.getVehicleType())
+                        .ownerName(dto.getOwnerName())
+                        .mobileNumber(dto.getMobileNumber())
+                        .user(user)
+                        .build();
+
+        Vehicle savedVehicle =
+                vehicleService.saveVehicle(vehicle);
+
+        return convertToDTO(savedVehicle);
+    }
+
+    @GetMapping("/my")
+    public List<VehicleDTO> getMyVehicles() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return vehicleService.getVehiclesByUser(user)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{id}")
+    public VehicleDTO getVehicle(
+            @PathVariable Long id) {
+
+        return convertToDTO(
+                vehicleService.getVehicle(id));
+    }
+
+    @GetMapping
+    public List<VehicleDTO> getAllVehicles() {
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (currentUser.getRole() == Role.ROLE_ADMIN) {
+            return vehicleService.getAllVehicles()
+                    .stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        }
+
+        return vehicleService.getVehiclesByUser(currentUser)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteVehicle(
+            @PathVariable Long id) {
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Vehicle vehicle = vehicleService.getVehicle(id);
+
+        if (currentUser.getRole() != Role.ROLE_ADMIN &&
+            (vehicle.getUser() == null || !vehicle.getUser().getUserId().equals(currentUser.getUserId()))) {
+            throw new RuntimeException("You can only delete your own vehicles");
+        }
+
+        vehicleService.deleteVehicle(id);
+
+        return "Vehicle deleted successfully";
+    }
+
+    private VehicleDTO convertToDTO(
+            Vehicle vehicle) {
+
+        return new VehicleDTO(
+                vehicle.getVehicleId(),
+                vehicle.getVehicleNumber(),
+                vehicle.getVehicleType(),
+                vehicle.getOwnerName(),
+                vehicle.getMobileNumber(),
+                vehicle.getUser() != null ? vehicle.getUser().getUserId() : null
+        );
+    }
+}

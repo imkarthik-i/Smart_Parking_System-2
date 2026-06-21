@@ -105,7 +105,7 @@ export default function CustomerPayments() {
       </head>
       <body>
         ${receiptContent}
-        <script>window.print();<\/script>
+        <script>window.print();</script>
       </body>
       </html>
     `);

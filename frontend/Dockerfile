@@ -3,6 +3,9 @@
 # ============================================================
 FROM node:22-alpine AS builder
 
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
 WORKDIR /app
 
 # Copy package files
@@ -15,7 +18,8 @@ RUN npm install
 COPY . .
 
 # Build production bundle
-RUN npm run build
+RUN echo "Building with REACT_APP_API_URL=${REACT_APP_API_URL:-<empty (relative)>}" && \
+    npm run build
 
 # ============================================================
 # STAGE 2: Nginx Runtime

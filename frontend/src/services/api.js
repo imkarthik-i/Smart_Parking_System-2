@@ -2,29 +2,44 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || '';
 
+console.log('[API] BASE_URL:', API_BASE_URL || '(relative - using nginx proxy)');
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
+  timeout: 30000,
 });
 
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) config.headers.Authorization = `Bearer ${token}`;
+    const logData = config.data ? { ...config.data, password: '***REDACTED***' } : '';
+    console.log(`[API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`, logData);
     return config;
   },
   (error) => Promise.reject(error)
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`[API] ${response.status} ${response.config.url}`, response.data);
+    return response;
+  },
   (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('user');
-      window.location.href = '/login';
+    if (error.response) {
+      console.error(`[API] ERROR ${error.response.status} ${error.config?.url}:`, error.response.data);
+      if (error.response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+    } else if (error.request) {
+      console.error('[API] NETWORK ERROR - No response received:', error.message);
+    } else {
+      console.error('[API] ERROR:', error.message);
     }
     return Promise.reject(error);
   }

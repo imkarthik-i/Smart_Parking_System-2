@@ -3,6 +3,41 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FiUser, FiMail, FiLock } from 'react-icons/fi';
 
+function extractErrorMessage(err) {
+  if (!err) return 'Registration failed. Please try again.';
+
+  const debug = {
+    hasResponse: !!err.response,
+    status: err.response?.status,
+    statusText: err.response?.statusText,
+    data: err.response?.data,
+    dataType: typeof err.response?.data,
+    dataJSON: (() => { try { return JSON.stringify(err.response?.data); } catch(e) { return String(err.response?.data); } })(),
+    message: err.message,
+    code: err.code,
+    name: err.name,
+    isAxiosError: err.isAxiosError,
+  };
+  console.log('[Register] Debug info:', debug);
+  window.__lastRegisterError = debug;
+
+  if (err.response?.data?.message) return err.response.data.message;
+  if (err.response?.data?.error) return err.response.data.error;
+  if (typeof err.response?.data === 'string') return err.response.data;
+  if (err.response?.data) {
+    const map = err.response.data;
+    const fieldErrors = Object.values(map).filter(v => typeof v === 'string');
+    if (fieldErrors.length > 0) return fieldErrors.join('. ');
+  }
+  if (err.response?.status === 500 && !err.response?.data) return 'Backend server error (500) - check backend logs';
+  if (err.response?.status === 400) return `Bad request (400) - ${JSON.stringify(err.response.data)}`;
+  if (err.response?.status === 403) return 'Access denied (403) - CORS may be blocking';
+  if (err.response?.status === 404) return 'API endpoint not found (404)';
+  if (err.message === 'Network Error') return 'Network error - backend unreachable. Check: (1) minikube tunnel running? (2) backend pod ready? (3) nginx proxy correct?';
+  if (err.code === 'ECONNABORTED') return 'Request timed out after 30s. Backend may be overloaded.';
+  return `Error (${err.response?.status || 'unknown'}): ${err.message || 'No details available'}`;
+}
+
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -21,7 +56,9 @@ export default function Register() {
       setSuccess('Account created successfully! Redirecting to login...');
       setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      console.error('[Register] Error:', err);
+      const msg = extractErrorMessage(err);
+      setError(msg);
     } finally {
       setLoading(false);
     }

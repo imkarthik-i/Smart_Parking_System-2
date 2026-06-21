@@ -3,6 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 
+function extractErrorMessage(err) {
+  if (!err) return 'Invalid credentials. Please try again.';
+  if (err.response?.data?.message) return err.response.data.message;
+  if (err.response?.data?.error) return err.response.data.error;
+  if (typeof err.response?.data === 'string') return err.response.data;
+  if (err.message === 'Network Error') return 'Network error. Backend may be unreachable.';
+  if (err.code === 'ECONNABORTED') return 'Request timed out. Backend may be overloaded.';
+  return 'Invalid credentials. Please try again.';
+}
+
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -19,7 +29,9 @@ export default function Login() {
       await login(form.username, form.password, form.rememberMe);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
+      console.error('[Login] Error:', err);
+      const msg = extractErrorMessage(err);
+      setError(msg);
     } finally {
       setLoading(false);
     }

@@ -4,7 +4,7 @@ metadata:
   name: smart-parking-backend
   namespace: parking-system
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: smart-parking-backend
@@ -20,11 +20,12 @@ spec:
             - sh
             - -c
             - |
-              until nc -z mysql-service 3306; do
-                echo "Waiting for MySQL at mysql-service:3306..."
+              for i in $(seq 1 30); do
+                nc -w 3 mysql-service 3306 </dev/null 2>/dev/null && echo "MySQL ready!" && exit 0
+                echo "Waiting for MySQL at mysql-service:3306... attempt $i"
                 sleep 3
               done
-              echo "MySQL is ready!"
+              echo "Failed to connect to MySQL" && exit 1
       containers:
         - name: backend
           image: smart-parking-app:latest
@@ -68,9 +69,9 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 15
-            timeoutSeconds: 5
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
             failureThreshold: 5
           readinessProbe:
             httpGet:

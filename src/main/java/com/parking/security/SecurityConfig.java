@@ -1,7 +1,8 @@
 package com.parking.security;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,16 +17,14 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
-    @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost,http://localhost:30080,http://192.168.49.2:30080,http://192.168.49.2:30081}")
-    private String allowedOrigins;
+    private final JwtAuthFilter jwtAuthFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
@@ -38,19 +37,17 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 
-                      
-                		.requestMatchers(
-                		        "/auth/**",
-                		        "/swagger-ui/**",
-                		        "/swagger-ui.html",
-                		        "/v3/api-docs/**",
-                		        "/v3/api-docs",
-                		        "/v3/api-docs/swagger-config",
-                		        "/actuator/**"
-                		).permitAll()
+                     		.requestMatchers(
+                     		        "/auth/**",
+                     		        "/swagger-ui/**",
+                     		        "/swagger-ui.html",
+                     		        "/v3/api-docs/**",
+                     		        "/v3/api-docs",
+                     		        "/v3/api-docs/swagger-config",
+                     		        "/actuator/**"
+                     		).permitAll()
 
-                      
-                        .anyRequest().authenticated()
+                            .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter,
                         UsernamePasswordAuthenticationFilter.class
@@ -73,16 +70,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        List<String> origins = Arrays.stream(allowedOrigins.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .toList();
-        configuration.setAllowedOrigins(origins);
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+        log.info("CORS configured: allowedOriginPatterns=*, methods=GET,POST,PUT,DELETE,PATCH,OPTIONS, credentials=true");
         return source;
     }
 }

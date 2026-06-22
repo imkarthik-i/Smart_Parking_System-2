@@ -4,7 +4,7 @@ metadata:
   name: smart-parking-frontend
   namespace: parking-system
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: smart-parking-frontend

@@ -2,12 +2,17 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || '';
 
-console.log('[API] BASE_URL:', API_BASE_URL || '(relative - using nginx proxy)');
+console.log('%c[API] Initializing', 'color: #4CAF50; font-weight: bold');
+console.log('[API] REACT_APP_API_URL:', process.env.REACT_APP_API_URL || '(not set)');
+console.log('[API] Final BASE_URL:', `"${API_BASE_URL}"`);
+console.log('[API] Mode:', API_BASE_URL ? 'absolute URL (direct to backend)' : 'relative URL (via nginx proxy)');
+console.log('[API] Origin:', window.location.origin);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
   timeout: 30000,
+  withCredentials: false,
 });
 
 api.interceptors.request.use(
@@ -15,7 +20,9 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) config.headers.Authorization = `Bearer ${token}`;
     const logData = config.data ? { ...config.data, password: '***REDACTED***' } : '';
-    console.log(`[API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`, logData);
+    console.log(`[API] ➡ ${config.method?.toUpperCase()} ${config.baseURL || window.location.origin}${config.url}`, logData);
+    if (token) console.log(`[API] Authorization: Bearer ${token.substring(0, 20)}...`);
+    console.log(`[API] Full URL: ${(config.baseURL || window.location.origin)}${config.url}`);
     return config;
   },
   (error) => Promise.reject(error)
@@ -23,12 +30,17 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    console.log(`[API] ${response.status} ${response.config.url}`, response.data);
+    console.log(`[API] ✅ ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, response.data);
+    const corsOrigin = response.headers['access-control-allow-origin'];
+    if (corsOrigin) {
+      console.log(`[API] CORS header present: Access-Control-Allow-Origin = ${corsOrigin}`);
+    }
     return response;
   },
   (error) => {
     if (error.response) {
-      console.error(`[API] ERROR ${error.response.status} ${error.config?.url}:`, error.response.data);
+      console.error(`[API] ❌ ERROR ${error.response.status} ${error.config?.method?.toUpperCase()} ${error.config?.url}:`, error.response.data);
+      console.error(`[API] Response headers:`, error.response.headers);
       if (error.response.status === 401) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -37,9 +49,13 @@ api.interceptors.response.use(
         window.location.href = '/login';
       }
     } else if (error.request) {
-      console.error('[API] NETWORK ERROR - No response received:', error.message);
+      console.error(`[API] 🌐 NETWORK ERROR - No response received. This is likely a CORS issue or the backend is unreachable.`);
+      console.error(`[API] Request URL: ${error.config?.baseURL || window.location.origin}${error.config?.url}`);
+      console.error(`[API] Request method: ${error.config?.method?.toUpperCase()}`);
+      console.error(`[API] Error message:`, error.message);
+      console.error(`[API] To fix CORS: ensure backend allows Origin: ${window.location.origin}`);
     } else {
-      console.error('[API] ERROR:', error.message);
+      console.error('[API] ❌ ERROR:', error.message);
     }
     return Promise.reject(error);
   }

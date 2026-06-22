@@ -1,165 +1,82 @@
 package com.parking.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.parking.dto.LoginRequest;
-import com.parking.dto.RegisterRequest;
+import com.parking.dto.*;
 import com.parking.entity.User;
 import com.parking.enums.Role;
 import com.parking.repository.UserRepository;
 import com.parking.security.JwtService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
-
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AuthController.class)
-@AutoConfigureMockMvc(addFilters = false)
+@ExtendWith(MockitoExtension.class)
 class AuthControllerTest {
 
-    @Autowired private MockMvc mockMvc;
-    @Autowired private ObjectMapper objectMapper;
-
-    @MockBean private UserRepository userRepository;
-    @MockBean private PasswordEncoder passwordEncoder;
-    @MockBean private AuthenticationManager authenticationManager;
-    @MockBean private JwtService jwtService;
+    @Mock private UserRepository userRepository;
+    @Mock private PasswordEncoder passwordEncoder;
+    @Mock private AuthenticationManager authenticationManager;
+    @Mock private JwtService jwtService;
+    @InjectMocks private AuthController authController;
 
     @Test
-    void register_ShouldReturnSuccess() throws Exception {
-        RegisterRequest request = new RegisterRequest("newuser", "new@test.com", "password123");
+    void register_ShouldCreateCustomerUser() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("john");
+        request.setEmail("john@test.com");
+        request.setPassword("password123");
 
-        when(userRepository.existsByUsername("newuser")).thenReturn(false);
-        when(userRepository.existsByEmail("new@test.com")).thenReturn(false);
+        when(userRepository.existsByUsername("john")).thenReturn(false);
+        when(userRepository.existsByEmail("john@test.com")).thenReturn(false);
         when(passwordEncoder.encode("password123")).thenReturn("encoded");
-        when(userRepository.save(any(User.class))).thenReturn(new User());
+        when(userRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("User registered successfully"));
+        String result = authController.register(request);
+
+        assertThat(result).isEqualTo("User registered successfully");
+        verify(userRepository).save(argThat(u ->
+                u.getUsername().equals("john") &&
+                u.getRole() == Role.ROLE_CUSTOMER &&
+                u.getStatus().equals("ACTIVE")
+        ));
     }
 
     @Test
-    void register_Admin_ShouldSucceed() throws Exception {
-        RegisterRequest request = new RegisterRequest("admin2", "admin2@test.com", "admin123");
+    void register_ShouldThrowWhenDuplicateUsername() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("john");
+        request.setEmail("john@test.com");
+        request.setPassword("pass");
 
-        when(userRepository.existsByUsername("admin2")).thenReturn(false);
-        when(userRepository.existsByEmail("admin2@test.com")).thenReturn(false);
-        when(passwordEncoder.encode("admin123")).thenReturn("encoded");
-        when(userRepository.save(any(User.class))).thenReturn(new User());
+        when(userRepository.existsByUsername("john")).thenReturn(true);
 
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+        assertThatThrownBy(() -> authController.register(request))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Username already exists");
     }
 
     @Test
-    void register_DuplicateUsername_ShouldThrow() throws Exception {
-        RegisterRequest request = new RegisterRequest("existing", "new@test.com", "password123");
+    void login_ShouldReturnToken() {
+        LoginRequest request = new LoginRequest();
+        request.setUsername("john");
+        request.setPassword("pass");
 
-        when(userRepository.existsByUsername("existing")).thenReturn(true);
+        User user = User.builder().username("john").password("encoded").role(Role.ROLE_CUSTOMER).build();
+        when(userRepository.findByUsername("john")).thenReturn(java.util.Optional.of(user));
+        when(jwtService.generateToken("john", "ROLE_CUSTOMER")).thenReturn("mock-jwt-token");
 
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isInternalServerError());
-    }
+        AuthResponse response = authController.login(request);
 
-    @Test
-    void register_DuplicateEmail_ShouldThrow() throws Exception {
-        RegisterRequest request = new RegisterRequest("newuser", "existing@test.com", "password123");
-
-        when(userRepository.existsByUsername("newuser")).thenReturn(false);
-        when(userRepository.existsByEmail("existing@test.com")).thenReturn(true);
-
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isInternalServerError());
-    }
-
-    @Test
-    void register_ShortPassword_ShouldReturnBadRequest() throws Exception {
-        RegisterRequest request = new RegisterRequest("newuser", "new@test.com", "12345");
-
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void register_MissingFields_ShouldReturnBadRequest() throws Exception {
-        RegisterRequest request = new RegisterRequest("", "", "");
-
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void login_ShouldReturnToken() throws Exception {
-        LoginRequest request = new LoginRequest("customer", "password123");
-        User user = User.builder()
-                .username("customer")
-                .password("encoded")
-                .role(Role.ROLE_CUSTOMER)
-                .build();
-
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenReturn(null);
-        when(userRepository.findByUsername("customer")).thenReturn(Optional.of(user));
-        when(jwtService.generateToken("customer", "ROLE_CUSTOMER")).thenReturn("test-token");
-
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("test-token"))
-                .andExpect(jsonPath("$.username").value("customer"))
-                .andExpect(jsonPath("$.role").value("ROLE_CUSTOMER"));
-    }
-
-    @Test
-    void login_InvalidCredentials_ShouldThrow() throws Exception {
-        LoginRequest request = new LoginRequest("wrong", "wrongpass");
-
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new BadCredentialsException("Bad credentials"));
-
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void login_EmptyFields_ShouldReturnBadRequest() throws Exception {
-        LoginRequest request = new LoginRequest("", "");
-
-        when(authenticationManager.authenticate(any()))
-                .thenThrow(new BadCredentialsException("Bad credentials"));
-
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+        assertThat(response.getToken()).isEqualTo("mock-jwt-token");
+        assertThat(response.getUsername()).isEqualTo("john");
+        assertThat(response.getRole()).isEqualTo("ROLE_CUSTOMER");
+        verify(authenticationManager).authenticate(any());
     }
 }

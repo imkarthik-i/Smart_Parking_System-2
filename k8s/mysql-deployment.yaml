@@ -49,6 +49,8 @@ spec:
           volumeMounts:
             - name: mysql-storage
               mountPath: /var/lib/mysql
+            - name: init-scripts
+              mountPath: /docker-entrypoint-initdb.d
           livenessProbe:
             exec:
               command:
@@ -73,3 +75,6 @@ spec:
         - name: mysql-storage
           persistentVolumeClaim:
             claimName: mysql-pvc
+        - name: init-scripts
+          configMap:
+            name: mysql-init-scripts

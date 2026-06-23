@@ -6,6 +6,18 @@ import lombok.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * DTO for the administrator dashboard view.
+ * <p>
+ * Aggregates high-level system statistics including user counts,
+ * parking lot/slot utilization, reservation metrics, revenue
+ * data, vehicle type distribution, and slot utilization breakdown.
+ * Designed to power the admin analytics dashboard.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor

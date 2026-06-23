@@ -23,6 +23,17 @@ import java.util.stream.Collectors;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.validation.annotation.Validated;
 
+/**
+ * REST controller for reservation management operations.
+ * <p>
+ * Provides endpoints for creating new parking slot reservations
+ * (immediate or scheduled), viewing user-specific or all reservations,
+ * and cancelling existing reservations with automatic slot release.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Validated
 @RestController
 @RequestMapping("/api/reservations")

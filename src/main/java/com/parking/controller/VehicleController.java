@@ -24,6 +24,18 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+/**
+ * REST controller for vehicle management operations.
+ * <p>
+ * Provides endpoints for registering new vehicles, retrieving
+ * vehicle information by owner or ID, updating vehicle details,
+ * and deleting vehicle records. Enforces ownership validation
+ * for non-admin users.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("/api/vehicles")
 @RequiredArgsConstructor

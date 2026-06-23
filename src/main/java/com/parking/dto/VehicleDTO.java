@@ -8,6 +8,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * DTO for vehicle creation and update operations.
+ * <p>
+ * Contains vehicle registration details including the unique
+ * license plate number, vehicle type, owner information, and
+ * the associated user identifier.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor

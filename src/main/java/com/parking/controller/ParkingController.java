@@ -30,6 +30,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.validation.annotation.Validated;
 
+/**
+ * REST controller for vehicle entry and exit operations.
+ * <p>
+ * Provides endpoints for processing vehicle entry (creating active
+ * transactions and marking slots as occupied), vehicle exit (calculating
+ * duration, completing transactions, and auto-generating billing),
+ * and retrieving transaction history for users and administrators.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Validated
 @RestController
 @RequestMapping("/api/parking")

@@ -15,6 +15,18 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Implementation of {@link ParkingTransactionService} for managing
+ * vehicle entry and exit operations.
+ * <p>
+ * Handles the complete parking lifecycle: vehicle entry with slot
+ * occupancy, exit processing with duration calculation, automatic
+ * bill generation, and reservation cancellation upon entry.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class ParkingTransactionServiceImpl implements ParkingTransactionService {
@@ -25,8 +37,19 @@ public class ParkingTransactionServiceImpl implements ParkingTransactionService 
     private final ReservationRepository reservationRepository;
     private final BillingRepository billingRepository;
 
+    /**
+     * Standard hourly parking rate in currency units.
+     */
     private static final double RATE_PER_HOUR = 50.0;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Validates vehicle and slot existence, checks slot availability,
+     * cancels any existing confirmed reservations for the slot, marks
+     * the slot as OCCUPIED, and creates a new active transaction.
+     * </p>
+     */
     @Override
     @Transactional
     public ParkingTransaction vehicleEntry(String vehicleNumber, Long slotId) {
@@ -61,6 +84,14 @@ public class ParkingTransactionServiceImpl implements ParkingTransactionService 
         return transactionRepository.save(tx);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Calculates parking duration from entry to exit time, sets
+     * the transaction status to COMPLETED, releases the slot,
+     * and auto-generates a billing record with the computed amount.
+     * </p>
+     */
     @Override
     @Transactional
     public ParkingTransaction vehicleExit(Long transactionId) {
@@ -97,17 +128,26 @@ public class ParkingTransactionServiceImpl implements ParkingTransactionService 
         return savedTx;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ParkingTransaction getTransaction(Long id) {
         return transactionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<ParkingTransaction> getTransactionsByUser(User user) {
         return transactionRepository.findByUser(user);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<ParkingTransaction> getAllTransactions() {
         return transactionRepository.findAll();

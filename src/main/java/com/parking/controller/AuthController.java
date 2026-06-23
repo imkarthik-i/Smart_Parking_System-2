@@ -20,6 +20,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
+/**
+ * REST controller for authentication operations.
+ * <p>
+ * Provides endpoints for user registration and login.
+ * Registration creates a new customer account with encoded password,
+ * while login authenticates credentials and returns a JWT token
+ * for subsequent authorized requests.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor

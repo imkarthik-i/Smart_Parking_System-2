@@ -17,6 +17,19 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+/**
+ * REST controller for dashboard analytics operations.
+ * <p>
+ * Provides aggregated statistics for both admin and customer dashboards.
+ * Admin dashboard includes system-wide metrics such as revenue trends,
+ * slot utilization, and vehicle type distribution. Customer dashboard
+ * provides personalized statistics including vehicle counts, reservation
+ * status, and pending bills.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("/api/dashboard")
 @RequiredArgsConstructor

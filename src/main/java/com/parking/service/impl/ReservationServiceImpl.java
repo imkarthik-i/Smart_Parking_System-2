@@ -14,6 +14,17 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Implementation of {@link ReservationService} for managing parking reservations.
+ * <p>
+ * Handles reservation creation with slot availability validation,
+ * vehicle type compatibility checking, and reservation cancellation
+ * that releases the associated slot.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class ReservationServiceImpl implements ReservationService {
@@ -22,11 +33,25 @@ public class ReservationServiceImpl implements ReservationService {
     private final VehicleRepository vehicleRepository;
     private final ParkingSlotRepository slotRepository;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Creates an immediate reservation (start time defaults to now, no end time).
+     * </p>
+     */
     @Override
     public Reservation createReservation(Long vehicleId, Long slotId) {
         return createReservation(vehicleId, slotId, null, null);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Validates slot availability, verifies vehicle-to-slot type
+     * compatibility, marks the slot as RESERVED, and persists
+     * the reservation.
+     * </p>
+     */
     @Override
     public Reservation createReservation(Long vehicleId, Long slotId, LocalDateTime startTime, LocalDateTime endTime) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
@@ -66,6 +91,13 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationRepository.save(reservation);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sets the reservation status to CANCELLED and releases
+     * the associated parking slot back to AVAILABLE.
+     * </p>
+     */
     @Override
     public Reservation cancelReservation(Long reservationId) {
 
@@ -82,17 +114,26 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationRepository.save(reservation);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Reservation getReservationById(Long id) {
         return reservationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Reservation> getAllReservations() {
         return reservationRepository.findAll();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Reservation> getReservationsByUser(User user) {
         return reservationRepository.findByUser(user);

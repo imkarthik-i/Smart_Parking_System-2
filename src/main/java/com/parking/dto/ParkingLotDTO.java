@@ -4,6 +4,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+/**
+ * DTO for parking lot information.
+ * <p>
+ * Contains parking lot configuration details along with live
+ * slot availability statistics (available, occupied, reserved).
+ * Used for both create/update operations and display purposes.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor

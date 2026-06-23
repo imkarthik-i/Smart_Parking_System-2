@@ -21,6 +21,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+/**
+ * REST controller for parking lot management operations.
+ * <p>
+ * Provides endpoints for creating parking lots with automatic
+ * slot generation, retrieving lot information with utilization
+ * statistics, updating lot configuration, and deleting lots.
+ * All modification endpoints are admin-restricted.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("/api/lots")
 @RequiredArgsConstructor

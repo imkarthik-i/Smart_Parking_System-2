@@ -7,6 +7,17 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for parking reservation details.
+ * <p>
+ * Carries reservation information including the associated
+ * vehicle and slot, time window, and current status. Includes
+ * display-friendly fields like slot number and vehicle number.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor

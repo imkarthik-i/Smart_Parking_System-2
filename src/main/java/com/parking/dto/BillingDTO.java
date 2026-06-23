@@ -8,6 +8,17 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for billing details associated with a parking transaction.
+ * <p>
+ * Contains rate information, computed charges, payment status,
+ * and enriched display data including vehicle details, slot
+ * information, and parking duration.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -50,6 +61,22 @@ public class BillingDTO {
     @Schema(description = "Parking lot name", example = "Downtown Parking")
     private String lotName;
 
+    /**
+     * Constructs a comprehensive billing DTO with all display fields.
+     *
+     * @param billingId      unique billing identifier
+     * @param transactionId  associated parking transaction identifier
+     * @param ratePerHour    hourly parking rate
+     * @param totalAmount    total amount charged
+     * @param paymentStatus  current payment status
+     * @param entryTime      vehicle entry timestamp
+     * @param exitTime       vehicle exit timestamp
+     * @param duration       parking duration in hours
+     * @param vehicleNumber  license plate number
+     * @param vehicleType    type of vehicle
+     * @param slotNumber     slot identifier used
+     * @param lotName        parking lot name
+     */
     public BillingDTO(Long billingId, Long transactionId,
                       Double ratePerHour, Double totalAmount, String paymentStatus,
                       LocalDateTime entryTime, LocalDateTime exitTime, Double duration,

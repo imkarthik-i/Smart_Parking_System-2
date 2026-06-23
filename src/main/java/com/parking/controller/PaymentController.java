@@ -20,6 +20,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST controller for payment processing operations.
+ * <p>
+ * Provides endpoints for making payments against billing records,
+ * retrieving payment history for users, and viewing payment details.
+ * Supports multiple payment methods including CASH, UPI, and CARD.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor

@@ -19,6 +19,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+/**
+ * REST controller for billing operations.
+ * <p>
+ * Provides endpoints for generating billing records from completed
+ * parking transactions and retrieving billing history. Bill generation
+ * is admin-restricted; bills are also auto-generated on vehicle exit.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("/api/billing")
 @RequiredArgsConstructor

@@ -3,6 +3,17 @@ package com.parking.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+/**
+ * DTO for the customer dashboard view.
+ * <p>
+ * Aggregates customer-specific statistics including vehicle count,
+ * reservation history, active transactions, pending bills, and
+ * overall parking lot availability information.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor

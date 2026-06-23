@@ -18,6 +18,19 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
+/**
+ * Spring Security configuration for the parking system.
+ * <p>
+ * Configures stateless JWT-based authentication, CORS support,
+ * CSRF protection (disabled for REST API), and endpoint-level
+ * authorization rules. Public endpoints (auth, Swagger, actuator)
+ * are permitted without authentication; all other requests
+ * require a valid JWT token.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -26,6 +39,13 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
 
+    /**
+     * Configures the security filter chain with JWT authentication.
+     *
+     * @param http the HTTP security configuration
+     * @return the configured security filter chain
+     * @throws Exception if configuration fails
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
             throws Exception {
@@ -56,17 +76,35 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Provides a BCrypt password encoder for secure password hashing.
+     *
+     * @return the password encoder bean
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Exposes the authentication manager for login processing.
+     *
+     * @param config the authentication configuration
+     * @return the authentication manager
+     * @throws Exception if the manager cannot be created
+     */
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Configures CORS settings allowing cross-origin requests from any origin,
+     * supporting standard HTTP methods and headers required for the API.
+     *
+     * @return the CORS configuration source
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

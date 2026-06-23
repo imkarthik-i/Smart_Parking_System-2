@@ -10,9 +10,29 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Global exception handler for the application.
+ * <p>
+ * Uses {@link RestControllerAdvice} to provide centralized exception
+ * handling across all controllers. Maps various exception types to
+ * appropriate HTTP status codes with standardized error response
+ * format. Handles resource not found, slot unavailability, bad
+ * credentials, validation errors, and generic exceptions.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Handles {@link ResourceNotFoundException} and returns a 404 Not Found response.
+     *
+     * @param ex      the exception thrown
+     * @param request the current HTTP request
+     * @return a 404 response with error details
+     */
     @ExceptionHandler(
             ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse>
@@ -36,6 +56,13 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * Handles {@link SlotNotAvailableException} and returns a 400 Bad Request response.
+     *
+     * @param ex      the exception thrown
+     * @param request the current HTTP request
+     * @return a 400 response with error details
+     */
     @ExceptionHandler(
             SlotNotAvailableException.class)
     public ResponseEntity<ErrorResponse>
@@ -59,6 +86,13 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Handles {@link BadCredentialsException} thrown during authentication failures.
+     *
+     * @param ex      the exception thrown
+     * @param request the current HTTP request
+     * @return a 401 Unauthorized response with error details
+     */
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse>
     handleBadCredentials(
@@ -81,6 +115,12 @@ public class GlobalExceptionHandler {
                 HttpStatus.UNAUTHORIZED);
     }
 
+    /**
+     * Handles validation errors from {@code @Valid} annotated request bodies.
+     *
+     * @param ex the validation exception
+     * @return a 400 response with field-specific validation error messages
+     */
     @ExceptionHandler(
             MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String,String>>
@@ -102,6 +142,13 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Handles all unhandled exceptions as a fallback.
+     *
+     * @param ex      the exception thrown
+     * @param request the current HTTP request
+     * @return a 500 Internal Server Error response with error details
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse>
     handleGenericException(

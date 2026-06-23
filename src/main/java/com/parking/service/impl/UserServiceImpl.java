@@ -11,6 +11,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Implementation of {@link UserService} for managing user operations.
+ * <p>
+ * Handles user CRUD with cascading cleanup of associated vehicles,
+ * reservations, transactions, billing, and payments when a user
+ * is deleted. Prevents deletion of the default admin account.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -22,22 +33,39 @@ public class UserServiceImpl implements UserService {
     private final BillingRepository billingRepository;
     private final PaymentRepository paymentRepository;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public User saveUser(User user) {
         return userRepository.save(user);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id : " + id));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Cascades deletion to all associated entities: reservations,
+     * transactions, billing records, and payments. Admin accounts
+     * are protected from deletion.
+     * </p>
+     */
     @Override
     @Transactional
     public void deleteUser(Long id) {
@@ -70,6 +98,9 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public User activateUser(Long id) {
         User user = userRepository.findById(id)
@@ -78,6 +109,9 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public User deactivateUser(Long id) {
         User user = userRepository.findById(id)
@@ -86,6 +120,13 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Updates the username and email fields only. Password changes
+     * are handled through a separate authentication flow.
+     * </p>
+     */
     @Override
     public User updateUser(Long id, User updated) {
         User user = userRepository.findById(id)

@@ -9,6 +9,17 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for parking transaction details.
+ * <p>
+ * Captures the complete lifecycle of a parking session including
+ * entry/exit times, duration, and status. Includes vehicle and
+ * slot information for display purposes.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor

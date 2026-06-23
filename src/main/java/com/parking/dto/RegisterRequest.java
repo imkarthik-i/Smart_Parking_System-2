@@ -4,6 +4,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+/**
+ * DTO for new user registration requests.
+ * <p>
+ * Captures the essential registration information: username, email,
+ * and password. The password must meet the minimum length requirement.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor

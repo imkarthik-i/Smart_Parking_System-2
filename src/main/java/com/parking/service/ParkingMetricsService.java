@@ -11,6 +11,18 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service responsible for exposing parking system metrics to Micrometer.
+ * <p>
+ * Registers custom gauges at application startup for monitoring key
+ * operational metrics such as available/occupied slots, active
+ * transactions, total revenue, user counts, and payment statistics.
+ * These metrics are exported to the configured monitoring system.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class ParkingMetricsService {

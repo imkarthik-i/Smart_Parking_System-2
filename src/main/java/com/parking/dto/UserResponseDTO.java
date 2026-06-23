@@ -6,6 +6,17 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for returning user details in API responses.
+ * <p>
+ * Provides a read-only view of user information excluding sensitive
+ * fields such as the password. Includes metadata like account status
+ * and creation timestamp.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor

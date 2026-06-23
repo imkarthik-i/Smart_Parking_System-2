@@ -12,6 +12,18 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * JWT authentication filter that intercepts incoming HTTP requests.
+ * <p>
+ * Extracts the JWT token from the Authorization header (Bearer scheme),
+ * validates it, and sets the authentication context if valid. Skips
+ * requests without a Bearer token. Runs before Spring's
+ * {@link UsernamePasswordAuthenticationFilter} in the filter chain.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -19,6 +31,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
+    /**
+     * Processes each incoming request to extract and validate the JWT token.
+     * If the token is valid, sets the authentication in the security context.
+     *
+     * @param request     the incoming HTTP request
+     * @param response    the HTTP response
+     * @param filterChain the filter chain for passing the request further
+     * @throws ServletException if servlet processing fails
+     * @throws IOException      if I/O processing fails
+     */
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,

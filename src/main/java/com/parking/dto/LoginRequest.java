@@ -4,6 +4,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+/**
+ * DTO for user login requests.
+ * <p>
+ * Contains the credentials required for authentication:
+ * username and password. Both fields are mandatory.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor

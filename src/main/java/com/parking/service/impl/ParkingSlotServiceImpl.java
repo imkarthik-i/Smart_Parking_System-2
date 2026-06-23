@@ -15,6 +15,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Implementation of {@link ParkingSlotService} for managing parking slots.
+ * <p>
+ * Handles slot CRUD with duplicate slot number validation within a lot,
+ * availability queries filtered by status and type, and safe deletion
+ * that prevents removal of occupied slots.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class ParkingSlotServiceImpl implements ParkingSlotService {
@@ -22,6 +33,13 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
     private final ParkingSlotRepository slotRepository;
     private final ReservationRepository reservationRepository;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Defaults the slot status to AVAILABLE and validates that
+     * the slot number is unique within its parking lot.
+     * </p>
+     */
     @Override
     public ParkingSlot addSlot(ParkingSlot slot) {
         if (slot.getStatus() == null) {
@@ -36,27 +54,42 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
         return slotRepository.save(slot);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<ParkingSlot> getAllSlots() {
         return slotRepository.findAll();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<ParkingSlot> getAvailableSlots() {
         return slotRepository.findByStatus(SlotStatus.AVAILABLE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<ParkingSlot> getAvailableSlotsByType(SlotType slotType) {
         return slotRepository.findByStatusAndSlotType(SlotStatus.AVAILABLE, slotType);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ParkingSlot getSlot(Long id) {
         return slotRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parking Slot not found with id : " + id));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ParkingSlot updateSlot(Long id, ParkingSlot updated) {
         ParkingSlot slot = getSlot(id);
@@ -72,11 +105,21 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
         return slotRepository.save(slot);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<ParkingSlot> getAvailableSlotsByLotAndType(ParkingLot lot, SlotType slotType) {
         return slotRepository.findByParkingLotAndSlotTypeAndStatus(lot, slotType, SlotStatus.AVAILABLE);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Prevents deletion of occupied slots and cleans up associated
+     * reservations before removal.
+     * </p>
+     */
     @Override
     public void deleteSlot(Long id) {
         ParkingSlot slot = slotRepository.findById(id)

@@ -18,6 +18,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementation of {@link ParkingLotService} for managing parking lots.
+ * <p>
+ * Handles lot creation with automatic slot generation, capacity
+ * updates with dynamic slot addition/removal, and lot deletion
+ * with safety checks for active slots.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class ParkingLotServiceImpl implements ParkingLotService {
@@ -86,6 +97,15 @@ public class ParkingLotServiceImpl implements ParkingLotService {
         lotRepository.delete(lot);
     }
 
+    /**
+     * Generates parking slots for a lot based on configured capacities.
+     * Creates sequentially numbered slots for each vehicle type (CAR, BIKE, EV).
+     *
+     * @param lot      the parking lot to generate slots for
+     * @param carSlots number of car slots to create
+     * @param bikeSlots number of bike slots to create
+     * @param evSlots   number of EV slots to create
+     */
     private void generateSlots(ParkingLot lot, int carSlots, int bikeSlots, int evSlots) {
         List<ParkingSlot> slots = new ArrayList<>();
 
@@ -121,6 +141,14 @@ public class ParkingLotServiceImpl implements ParkingLotService {
         }
     }
 
+    /**
+     * Adjusts the number of slots per type when a lot's capacity is updated.
+     * Removes excess slots (if reducing capacity) or creates new slots
+     * (if expanding), ensuring no active slots are removed.
+     *
+     * @param lot the parking lot to adjust slots for
+     * @throws RuntimeException if attempting to reduce capacity while slots are occupied or reserved
+     */
     private void addAdditionalSlots(ParkingLot lot) {
         List<ParkingSlot> existing = slotRepository.findByParkingLot(lot);
         long existingCar = existing.stream().filter(s -> s.getSlotType() == SlotType.CAR).count();

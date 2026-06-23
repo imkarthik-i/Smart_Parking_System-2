@@ -23,6 +23,17 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+/**
+ * REST controller for user management operations.
+ * <p>
+ * Provides CRUD endpoints for user accounts including profile
+ * retrieval, account activation/deactivation, and administrative
+ * user management. Access control is enforced based on user roles.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor

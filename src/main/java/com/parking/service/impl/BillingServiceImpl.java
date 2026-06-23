@@ -11,6 +11,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Implementation of {@link BillingService} for managing billing operations.
+ * <p>
+ * Handles bill generation for completed parking transactions using
+ * a fixed hourly rate, and provides retrieval of billing records
+ * as enriched DTOs.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class BillingServiceImpl implements BillingService {
@@ -18,8 +29,20 @@ public class BillingServiceImpl implements BillingService {
     private final ParkingTransactionRepository transactionRepository;
     private final BillingRepository billingRepository;
 
+    /**
+     * Standard hourly parking rate used for bill calculation.
+     */
     private static final double RATE_PER_HOUR = 50.0;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Validates that the transaction is completed, calculates the
+     * total amount based on duration and hourly rate, creates a
+     * billing record with PENDING payment status, and returns
+     * the enriched DTO.
+     * </p>
+     */
     @Override
     public BillingDTO generateBill(Long transactionId) {
 
@@ -44,23 +67,35 @@ public class BillingServiceImpl implements BillingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Bill not found after save"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Billing getBillEntity(Long billingId) {
         return billingRepository.findById(billingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill not found"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BillingDTO getBill(Long billingId) {
         return billingRepository.findBillingDTOById(billingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill not found"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<BillingDTO> getAllBills() {
         return billingRepository.findAllBillingDTOs();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<BillingDTO> getBillsByUser(User user) {
         return billingRepository.findBillingDTOsByUser(user);

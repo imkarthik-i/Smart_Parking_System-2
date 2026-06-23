@@ -14,9 +14,26 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
+/**
+ * Configuration class for OpenAPI (Swagger) documentation.
+ * <p>
+ * Configures the OpenAPI specification with API metadata including
+ * title, description, version, contact information, and license.
+ * Adds JWT bearer token authentication support to the Swagger UI
+ * and configures resource handlers for the Swagger web interface.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Configuration
 public class OpenApiConfig {
 
+    /**
+     * Creates the OpenAPI specification with JWT security scheme.
+     *
+     * @return the configured OpenAPI instance
+     */
     @Bean
     public OpenAPI smartParkingOpenAPI() {
         SecurityScheme jwtScheme = new SecurityScheme()
@@ -47,6 +64,11 @@ public class OpenApiConfig {
                 .addSecurityItem(securityRequirement);
     }
 
+    /**
+     * Configures resource handlers to serve Swagger UI static resources.
+     *
+     * @return a WebMvcConfigurer for Swagger resource handling
+     */
     @Bean
     public WebMvcConfigurer swaggerResourceHandler() {
         return new WebMvcConfigurer() {

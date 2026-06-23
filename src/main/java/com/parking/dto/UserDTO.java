@@ -5,6 +5,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+/**
+ * DTO for user creation and update operations.
+ * <p>
+ * Carries all modifiable user fields including authentication
+ * credentials and role assignment. Validation constraints ensure
+ * data integrity at the API boundary.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor

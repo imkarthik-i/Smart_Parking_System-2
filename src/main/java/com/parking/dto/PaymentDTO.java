@@ -5,6 +5,17 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for payment details associated with a billing record.
+ * <p>
+ * Provides a comprehensive view of a payment including billing
+ * references, transaction details, and vehicle/slot information
+ * for display purposes.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -53,6 +64,24 @@ public class PaymentDTO {
     @Schema(description = "Duration of parking in hours", example = "2.0")
     private Double duration;
 
+    /**
+     * Constructs a comprehensive payment DTO with all display fields.
+     *
+     * @param paymentId     unique payment identifier
+     * @param billingId     associated billing record identifier
+     * @param transactionId associated parking transaction identifier
+     * @param amount        amount paid
+     * @param paymentMethod payment method used
+     * @param status        payment status
+     * @param paymentTime   timestamp of payment processing
+     * @param vehicleNumber license plate number
+     * @param vehicleType   type of vehicle
+     * @param slotNumber    slot identifier used
+     * @param lotName       parking lot name
+     * @param entryTime     vehicle entry timestamp
+     * @param exitTime      vehicle exit timestamp
+     * @param duration      parking duration in hours
+     */
     public PaymentDTO(Long paymentId, Long billingId, Long transactionId,
                       Double amount, String paymentMethod, String status,
                       LocalDateTime paymentTime,

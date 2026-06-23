@@ -13,6 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Implementation of {@link PaymentService} for processing payments.
+ * <p>
+ * Handles payment creation against billing records with duplicate
+ * payment protection and automatic billing status updates.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
@@ -20,6 +30,14 @@ public class PaymentServiceImpl implements PaymentService {
     private final BillingRepository billingRepository;
     private final PaymentRepository paymentRepository;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Validates that the billing record exists and has not already
+     * been paid. Creates a new payment record with SUCCESS status
+     * and updates the billing payment status to PAID.
+     * </p>
+     */
     @Override
     @Transactional
     public PaymentDTO makePayment(Long billingId, String method) {
@@ -48,23 +66,35 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found after save"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Payment getPaymentEntity(Long paymentId) {
         return paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PaymentDTO getPayment(Long paymentId) {
         return paymentRepository.findPaymentDTOById(paymentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<PaymentDTO> getAllPayments() {
         return paymentRepository.findAllPaymentDTOs();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<PaymentDTO> getPaymentsByUser(User user) {
         return paymentRepository.findPaymentDTOsByUser(user);

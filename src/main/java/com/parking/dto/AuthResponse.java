@@ -3,6 +3,17 @@ package com.parking.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+/**
+ * DTO for authentication responses.
+ * <p>
+ * Returned upon successful login or registration. Contains the JWT
+ * token for subsequent authenticated requests along with the user's
+ * basic profile information.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @AllArgsConstructor

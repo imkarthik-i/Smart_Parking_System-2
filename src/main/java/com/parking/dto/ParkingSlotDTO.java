@@ -7,6 +7,17 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+/**
+ * DTO for parking slot information.
+ * <p>
+ * Captures slot-level details including its location within a lot,
+ * slot number, type, current status, and floor. Used for both
+ * slot management and availability queries.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor

@@ -6,6 +6,16 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+/**
+ * Entity representing a payment transaction for parking billing.
+ * <p>
+ * Records the payment amount, method used, status, and timestamp.
+ * Each payment is linked to exactly one billing record.
+ * </p>
+ *
+ * @author Team Smart Parking
+ * @version 1.0
+ */
 @Entity
 @Table(name = "payments")
 @Getter
@@ -15,17 +25,33 @@ import java.time.LocalDateTime;
 @Builder
 public class Payment {
 
+    /**
+     * Unique identifier for the payment record.
+     * Auto-generated using identity strategy.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentId;
 
+    /**
+     * Amount paid for the parking service.
+     */
     private Double amount;
 
-    private String paymentMethod; // CASH, UPI, CARD
+    /**
+     * Payment method used (e.g., CASH, UPI, CARD).
+     */
+    private String paymentMethod;
 
+    /**
+     * Current status of the payment (e.g., PAID, PENDING, FAILED).
+     */
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
+    /**
+     * Timestamp when the payment was processed.
+     */
     private LocalDateTime paymentTime;
 
     @OneToOne
